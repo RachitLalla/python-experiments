@@ -97,3 +97,83 @@ def myfunc2():
 print(l)
 myfunc2()
 print(l)
+
+l:complex
+l:str=10j
+l:int # no error
+def dell():
+  #global l # if this
+  #print(l)
+  #l=10# trying to change a global variiable without declaring it as global inside the scope(should be the first statement referencing the variable) ? python will consider this a s us trying to create a local variable with the same name as a preexisting global variable and will throw an unbound local Error in the precceding line(print(l) saying that we  tried to refeerence a local variable before assigning it a value)
+  xx=2
+  #del l # provided that the line: 'global l' is commented; print(l) doesn't give an error but del l does give UnboundlocalError: local variable l referenced before assignment Why so?-> same reason as above comment
+dell()
+#yy=24.55
+#print(type(yy))#float
+
+global zz
+zz=12
+##global zz
+zz:str=29.3 
+##global zz 
+""" this line leads to error SyntaxError: annotated name zz can not be global instead of the error: SyntaxError: name zz assigned value before global declaration- which it throws in line: (
+zz=12
+global zz
+)
+"""
+del zz
+#print(zz)
+###for and if are treated as same scope
+for i in range(10):
+  global yy ## since for loop is considered as the same scope as the outer scope(main module in this case) and not a nested scope(like function definitions or class declarations), initializing yy before the global declaration(in line: yy:str=24.55) leads to a compile time SyntaxError: yy is assigned to before global declaration or SyntaxError: name yy is used prior to global declaration(in statement: print(yy)) 
+  yy=i
+  ######print(yy)
+  
+print(i)#i is declared in the for loop
+
+
+print(yy)
+
+#print(xx) # xx is declared in function dellO. This code will generate an error-> NameError: name xx is not defined
+"""new var declared in a for/while/etc loop or an if else block is accesible outside it  in python(not in java) but the same is not applicable to a variable declared in a fucntion body"""
+
+
+##def foo(aa,global bb):# global bb- SyntaxError: invalid syntax
+def parameterizedfunc(aa,bb=1):
+  aa=10
+  bb=20
+parameterizedfunc(10,20)
+#print(aa,bb)## trying to access local parameters of a function outside the function's scope
+##NameError: name aa is not defined
+global c
+#print("c: ",c)#trying to print c before initiazling it 
+#NameError: name c is not defined
+c=100
+#nonlocal x #SyntaxError: nonlocal declaration not allowed at module level
+
+#print("Str+int: "+9) # TypeError: can only concatenate str(not 'int') to str
+print("printing str+str(int): "+str(9))# correct way of doing the above
+x=7
+
+print(x)
+def nonlocalvaraccess():
+  #nonlocal x # Syntax Error no binding for nonlocal x found
+  c=10# this is treated as a new local var c, not the global one
+  print("c:"+str(c))
+  #global x # uncommenting this line will lead to error in the line: 'nonlocal x' in function: innerfunc()-since nonlocal x will try to find x local to any of the enclosing scopes recursively(from inner enclosing scope to outter enclosing scope) 1 step above the current scope(in the scope enclosing the current scope) and so on untill it finds the first x declaration it finds which is local variable in that scope(scope in the chain of enclosing scopes of the current scope where 'nonlocal x' statement is specified). This line 'global x' tells python compiler that this x is the x defined in the global scope( variable defined directly in the current module) and thus this x 'is not local to'/'does not belong to the scope of' the module: nonlocalvaraccess(). Thus python compiler will throw an error
+  x=5 # local var x, not the global one
+  def innerfunc():
+    nonlocal x # if the line 'global x' in all of the enclosing scopes(for example: in the scope of the function: nonlocalvaraccess() which is the immediate and only enclosing scope other than the module/global scope in this case)(except the module/global scope) is uncommented, python compiler  will generate an error at this line: SyntaxError: no Binding for nonlocal 'x' found
+
+
+
+    x=3
+    print("inside innerfunc()-> nonlocalvaraccess(){ innerfunc(){ nonlocal x=3}}: ",x)
+  print("Before innerfunc: ",x)
+  innerfunc()
+  print("After innerfunc()",x)
+print("Before nonlocalvaraccess():"+str(x))
+nonlocalvaraccess()
+print("After nonlocalvaraccess():"+str(x))
+
+print("c: "+str(c)) ##will print orignal c=100 not the modified value in nonlocalvaraccess() function
