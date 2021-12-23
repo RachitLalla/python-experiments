@@ -1,3 +1,42 @@
+import Lecture52Doubt
+print(dir(Lecture52Doubt))
+print(10) # here implicit conversion of int to str?
+#a=""+10 # can only concatenate str(not "int") to str
+
+
+
+s = "14.2.2.10a2" 
+# working
+print ("".join([ str(ord(c)) if (c.isalpha()) else c for c in s ]) )
+#working code: 
+print ("".join([ ord(c).__str__() if (c.isalpha()) else c for c in s ]))
+# the above 2 lines of code perform the same logic, and work on both python 2 and 3
+
+#print((a=10)) #Unlike in java, this is not possible in python, getting SyntaxError: invalid syntax
+
+list1=['mango','apple',] # notice the comma in the end of the list(before the closing bracket)? this is an important maintainability feature
+#list1[2]=2 # IndexError: list assignment index out of range.
+# we should use append here for adding a new element at a new index
+#tuple0 = (,) #invalid syntax use () or tuple() for empty tuple
+tuple1 =(1,) #notice the mandatory comma, else if (1) is used, tuple1 is assigned an integer 1 rather than a tuple with 1 element (python thinks brackets are just surrounding a mathematical expression: 1)
+dict1={1:'a',2:'b',} # extra comma at end
+print(dict1)
+tuple2=(1,2,) # extra comma at end
+print(tuple2)
+
+
+def aa1(a,b,c=9):
+  print(a,b,c)
+
+aa1(10,c=4,b=1)
+
+#aa1(a=10,11,c=12) #Eventhough one can understand which formal parameter the arguement 11 is meant to be assigned to(11 should get assigned to b); we get SyntaxError: positional arguement follows keyword arguement-because: One partial explanation: if we would have specified it like this: aa1(c=12,11,a=10) thinking that the only arguement remaining is b which will automatically get assigned the value 11; now, imagine if the function had four arguements(a,b,c,d) and we would try to specify it as: aa1(a=10,11,12,d=13)
+
+def aa(a,b):
+  print(a,b)
+#aa(10,a=3) # The following is not possible: wanted to specify b(2nd arg) before a(first arg), with a as keyword arguement and b as positional, but b's position is 2nd not first. Hence gpt typeError: aa() got multiple values for arguement 'a'
+
+
 n=[(a,0) for a in [1,2,3,4,5]]
 #l=[(a,b)  for b in [1,2,3,4,5] for (a,x) in n if x==0 and print((a,b)) and  else break ]
 def break1():
@@ -214,3 +253,82 @@ Output:
 """
 
 print ((id(1000000000000000033)), ((id(1000000000000000033))),(id(largenum)))
+
+var=10
+flag=True
+def outer():
+  #nonlocal var # SyntaxError : No binding for nonlocal var found
+  var="var inside outer"
+  #global funcpointer # no need in this case
+  
+  def inner():
+    #global var
+    var=20
+    global funcpointer
+    def innerOfInner():
+      #nonlocal var #when in the function: inner(), the line: global var is uncommented, this line generates SyntaxError: no binding for nonlocal 'var' found eventhough there is a local var is the enclosing scope of the enclosing scope of the current scope i.e: local var of function outer(), however since the first var to be encountered (while browsing for var in the enclosing scopes from inside to out) is global, this function only has the option to create it's own local 'var' or use the global one
+      print("Inside func Inner of Inner()",var) #this function irrespective of the scope it is called from(global, from inside outer or from inside inner), will print value of var according to the general rules of enclosing scope based on the scope where it's function definition is specified.
+    funcpointer=innerOfInner# provided line global var of function inner is commented, calling funcpointer() from the module/global scope will not result in the value of var being printed as 10(since that is the value of the variable var in that scope) , instead it will print 20 because: 1)this function is defined inside function inner,2)no local variable named var in the current function(innerOfInner), 3)closest variable var definition(starting search for var from current scope to immediate enclosing scope moving outwards) is found in the enclosing scope- inner() function(which has a local variable var)
+    
+    innerOfInner()
+    print("inside function inner()",var)
+  global flag
+  if(flag):
+   inner()
+   flag=False
+  funcpointer=inner
+  print("Inside function outer()",var)
+
+
+outer()
+
+
+funcpointer()
+def funcpointer(a):
+  pass
+#funcpointer() # this 
+outer()
+
+'''CHECK'''
+#funcpointer() # this was working earlier??
+def outer(a):
+  pass
+outer(1)
+#outer()#TypeError: outer() missing 1 required positional arguement: 'a'. No overloading in python??
+
+
+outer=3
+
+#outer() TypeError: int object is not callable
+
+
+
+'''CHECK'''
+
+def freevarsfunc(a):
+  #a=20
+  def freevarsinnerfunc():
+    n=a # does this line create a local variable with label n? does that label n point to the cell of free variable a?
+
+    def innerfunc2():
+      x=n # is n now a free variable and does it point to the same cell as a? x eventhough not a free variable points to the same cell as n and a?
+
+      #Main Question: do all variables(not just free labels) actually point to a python cell and always a 2 times jump is required to get the value?
+
+
+    #n=a+1
+    #n=30
+    print(a,n)
+    return n
+  return freevarsinnerfunc
+funcvar1=freevarsfunc(20)
+
+funcvar=freevarsfunc(30)
+print(funcvar.__code__.co_varnames)
+
+print(funcvar.__code__.co_freevars)
+print(funcvar.__closure__)
+print(freevarsfunc.__code__.co_freevars)
+print(freevarsfunc.__closure__)
+
+funcvar()
